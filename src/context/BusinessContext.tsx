@@ -5,6 +5,22 @@ export interface BusinessData {
   reviews: number;
   headline: string;
   lastUpdated: string;
+  businessType: string;
+  locationType: string;
+  insights: string[];
+  competitorAnalysis: {
+    localCompetitors: number;
+    estimatedMarketShare: string;
+    competitiveAdvantage: string;
+  };
+  seoMetrics: {
+    localSearchRanking: number;
+    monthlySearchVolume: number;
+    keywordOpportunities: number;
+    onlineVisibility: string;
+  };
+  dataFreshness: string;
+  confidenceScore: number;
 }
 
 interface BusinessState {

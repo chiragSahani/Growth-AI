@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Building2, MapPin, Search, AlertCircle } from 'lucide-react';
+import { Building2, MapPin, Search, AlertCircle, Sparkles } from 'lucide-react';
 import { useBusinessContext } from '../context/BusinessContext';
 
 const BusinessForm: React.FC = () => {
@@ -74,14 +74,29 @@ const BusinessForm: React.FC = () => {
     }
   };
 
+  // Sample business suggestions for demonstration
+  const businessSuggestions = [
+    { name: "Mario's Italian Bistro", location: "New York" },
+    { name: "TechFix Solutions", location: "San Francisco" },
+    { name: "Bloom Beauty Salon", location: "Los Angeles" },
+    { name: "FitCore Gym", location: "Chicago" },
+    { name: "Green Leaf Cafe", location: "Seattle" },
+    { name: "AutoCare Plus", location: "Houston" }
+  ];
+
+  const handleSuggestionClick = (suggestion: { name: string; location: string }) => {
+    setFormData(suggestion);
+    setErrors({ name: '', location: '' });
+  };
+
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
+    <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-lg">
       <div className="text-center mb-8">
         <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mb-4">
           <Building2 className="h-8 w-8 text-white" />
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Business Dashboard</h2>
-        <p className="text-gray-600">Enter your business details to get started</p>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Business Analytics</h2>
+        <p className="text-gray-600">Get AI-powered insights for your business</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -140,9 +155,46 @@ const BusinessForm: React.FC = () => {
           className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 flex items-center justify-center space-x-2"
         >
           <Search className="h-5 w-5" />
-          <span>Get Business Insights</span>
+          <span>Analyze Business</span>
         </button>
       </form>
+
+      {/* Sample Business Suggestions */}
+      <div className="mt-8">
+        <div className="flex items-center mb-4">
+          <Sparkles className="h-4 w-4 text-purple-500 mr-2" />
+          <h3 className="text-sm font-medium text-gray-700">Try these examples:</h3>
+        </div>
+        
+        <div className="grid grid-cols-1 gap-2">
+          {businessSuggestions.slice(0, 3).map((suggestion, index) => (
+            <button
+              key={index}
+              type="button"
+              onClick={() => handleSuggestionClick(suggestion)}
+              className="text-left p-3 rounded-lg border border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-all duration-200 group"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="font-medium text-gray-900 group-hover:text-purple-700">
+                    {suggestion.name}
+                  </div>
+                  <div className="text-sm text-gray-500 group-hover:text-purple-600">
+                    {suggestion.location}
+                  </div>
+                </div>
+                <Search className="h-4 w-4 text-gray-400 group-hover:text-purple-500" />
+              </div>
+            </button>
+          ))}
+        </div>
+        
+        <div className="mt-3 text-center">
+          <p className="text-xs text-gray-500">
+            Click any example to auto-fill the form
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
