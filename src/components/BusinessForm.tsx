@@ -46,7 +46,7 @@ const BusinessForm: React.FC = () => {
     dispatch({ type: 'SET_ERROR', payload: null });
 
     try {
-      const response = await fetch('https://growth-ai-25pq.onrender.com/business-data', {
+      const response = await fetch('https://growth-ai-1.onrender.com/business-data', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

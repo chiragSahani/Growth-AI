@@ -18,7 +18,7 @@ const BusinessCard: React.FC = () => {
         location: originalFormData.location || 'Sample Location',
       });
 
-      const response = await fetch(`https://growth-ai-25pq.onrender.com/regenerate-headline?${urlParams}`);
+      const response = await fetch(`https://growth-ai-1.onrender.com/regenerate-headline?${urlParams}`);
       
       if (!response.ok) {
         throw new Error('Failed to regenerate headline');
