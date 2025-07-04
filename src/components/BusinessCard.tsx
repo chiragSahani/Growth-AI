@@ -16,7 +16,7 @@ const BusinessCard: React.FC = () => {
         location: 'Sample Location',
       });
 
-      const response = await fetch(`http://localhost:3001/regenerate-headline?${urlParams}`);
+      const response = await fetch(`https://growth-ai-25pq.onrender.com/regenerate-headline?${urlParams}`);
       
       if (!response.ok) {
         throw new Error('Failed to regenerate headline');
