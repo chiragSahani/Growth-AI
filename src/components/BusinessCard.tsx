@@ -1,10 +1,17 @@
 import React, { useState } from 'react';
-import { Star, Users, Sparkles, RefreshCw, Clock, TrendingUp, Target, Search, BarChart3, Eye, Award, ChevronDown, ChevronUp } from 'lucide-react';
+import { Star, Users, Sparkles, RefreshCw, Clock, TrendingUp, Target, Search, BarChart3, Eye, Award, ChevronDown, ChevronUp, Activity, PieChart } from 'lucide-react';
 import { useBusinessContext } from '../context/BusinessContext';
+import RatingChart from './charts/RatingChart';
+import TrendChart from './charts/TrendChart';
+import CompetitorChart from './charts/CompetitorChart';
+import SEOChart from './charts/SEOChart';
+import MetricsGauge from './charts/MetricsGauge';
+import HeatmapChart from './charts/HeatmapChart';
 
 const BusinessCard: React.FC = () => {
   const { state, dispatch } = useBusinessContext();
   const [showAdvancedMetrics, setShowAdvancedMetrics] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
   const [formData, setFormData] = useState({ name: '', location: '' });
 
   if (!state.businessData) return null;
@@ -80,8 +87,15 @@ const BusinessCard: React.FC = () => {
   const businessTypeColor = getBusinessTypeColor(state.businessData.businessType);
   const locationBadge = getLocationBadge(state.businessData.locationType);
 
+  const tabs = [
+    { id: 'overview', label: 'Overview', icon: BarChart3 },
+    { id: 'analytics', label: 'Analytics', icon: TrendingUp },
+    { id: 'competition', label: 'Competition', icon: Target },
+    { id: 'activity', label: 'Activity', icon: Activity },
+  ];
+
   return (
-    <div className="bg-white rounded-2xl shadow-xl overflow-hidden w-full max-w-4xl">
+    <div className="bg-white rounded-2xl shadow-xl overflow-hidden w-full max-w-7xl">
       {/* Header */}
       <div className={`bg-gradient-to-r ${businessTypeColor} px-6 py-6`}>
         <div className="flex items-center justify-between">
@@ -106,158 +120,205 @@ const BusinessCard: React.FC = () => {
         </div>
       </div>
 
+      {/* Navigation Tabs */}
+      <div className="border-b border-gray-200">
+        <nav className="flex space-x-8 px-6">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
+                  activeTab === tab.id
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+
       {/* Content */}
       <div className="p-6">
-        {/* Core Metrics Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {/* Rating Card */}
-          <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-6 border border-yellow-200">
-            <div className="flex items-center mb-3">
-              <Star className="h-6 w-6 text-yellow-500 mr-2" />
-              <h4 className="font-semibold text-gray-900">Google Rating</h4>
-            </div>
-            <div className="flex items-baseline">
-              <span className="text-3xl font-bold text-gray-900">{state.businessData.rating}</span>
-              <span className="text-lg text-gray-600 ml-1">/5</span>
-            </div>
-            <div className="flex items-center mt-2">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={`h-4 w-4 ${
-                    i < Math.floor(state.businessData.rating)
-                      ? 'text-yellow-500 fill-current'
-                      : 'text-gray-300'
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Reviews Card */}
-          <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200">
-            <div className="flex items-center mb-3">
-              <Users className="h-6 w-6 text-green-500 mr-2" />
-              <h4 className="font-semibold text-gray-900">Reviews</h4>
-            </div>
-            <div className="flex items-baseline">
-              <span className="text-3xl font-bold text-gray-900">{state.businessData.reviews}</span>
-              <span className="text-lg text-gray-600 ml-1">total</span>
-            </div>
-            <p className="text-sm text-gray-600 mt-2">
-              {state.businessData.reviews > 200 ? 'Excellent engagement!' : 
-               state.businessData.reviews > 100 ? 'Great engagement!' : 'Growing audience'}
-            </p>
-          </div>
-
-          {/* Search Ranking Card */}
-          <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-200">
-            <div className="flex items-center mb-3">
-              <Search className="h-6 w-6 text-blue-500 mr-2" />
-              <h4 className="font-semibold text-gray-900">Local Ranking</h4>
-            </div>
-            <div className="flex items-baseline">
-              <span className="text-3xl font-bold text-gray-900">#{state.businessData.seoMetrics.localSearchRanking}</span>
-              <span className="text-lg text-gray-600 ml-1">position</span>
-            </div>
-            <p className="text-sm text-gray-600 mt-2">
-              {state.businessData.seoMetrics.localSearchRanking <= 3 ? 'Top performer!' : 'Room for growth'}
-            </p>
-          </div>
-
-          {/* Market Share Card */}
-          <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-200">
-            <div className="flex items-center mb-3">
-              <Target className="h-6 w-6 text-purple-500 mr-2" />
-              <h4 className="font-semibold text-gray-900">Market Share</h4>
-            </div>
-            <div className="flex items-baseline">
-              <span className="text-3xl font-bold text-gray-900">{state.businessData.competitorAnalysis.estimatedMarketShare}</span>
-            </div>
-            <p className="text-sm text-gray-600 mt-2">
-              vs {state.businessData.competitorAnalysis.localCompetitors} competitors
-            </p>
-          </div>
-        </div>
-
-        {/* SEO Headline Section */}
-        <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200 mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center">
-              <Sparkles className="h-6 w-6 text-indigo-500 mr-2" />
-              <h4 className="font-semibold text-gray-900">AI-Generated SEO Headline</h4>
-            </div>
-            <button
-              onClick={handleRegenerateHeadline}
-              disabled={state.isRegenerating}
-              className="flex items-center space-x-2 bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <RefreshCw className={`h-4 w-4 ${state.isRegenerating ? 'animate-spin' : ''}`} />
-              <span>{state.isRegenerating ? 'Generating...' : 'Regenerate'}</span>
-            </button>
-          </div>
-          
-          <div className="relative">
-            <p className="text-lg font-medium text-gray-900 leading-relaxed mb-4">
-              {state.businessData.headline}
-            </p>
-            {state.isRegenerating && (
-              <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center rounded-lg">
-                <div className="flex items-center space-x-2 text-indigo-600">
-                  <RefreshCw className="h-5 w-5 animate-spin" />
-                  <span className="font-medium">Generating new headline...</span>
+        {activeTab === 'overview' && (
+          <div className="space-y-8">
+            {/* Core Metrics Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Rating Card */}
+              <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-6 border border-yellow-200">
+                <div className="flex items-center mb-3">
+                  <Star className="h-6 w-6 text-yellow-500 mr-2" />
+                  <h4 className="font-semibold text-gray-900">Google Rating</h4>
+                </div>
+                <div className="flex items-baseline">
+                  <span className="text-3xl font-bold text-gray-900">{state.businessData.rating}</span>
+                  <span className="text-lg text-gray-600 ml-1">/5</span>
+                </div>
+                <div className="flex items-center mt-2">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`h-4 w-4 ${
+                        i < Math.floor(state.businessData.rating)
+                          ? 'text-yellow-500 fill-current'
+                          : 'text-gray-300'
+                      }`}
+                    />
+                  ))}
                 </div>
               </div>
-            )}
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-3 bg-white rounded-lg border border-indigo-200">
-              <p className="text-sm text-gray-600">
-                <strong>SEO Score:</strong> Optimized for local search with business name and location targeting.
-              </p>
-            </div>
-            <div className="p-3 bg-white rounded-lg border border-indigo-200">
-              <p className="text-sm text-gray-600">
-                <strong>Visibility:</strong> {state.businessData.seoMetrics.onlineVisibility} online presence detected.
-              </p>
-            </div>
-          </div>
-        </div>
 
-        {/* Business Insights */}
-        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-6 border border-emerald-200 mb-8">
-          <div className="flex items-center mb-4">
-            <TrendingUp className="h-6 w-6 text-emerald-500 mr-2" />
-            <h4 className="font-semibold text-gray-900">Business Insights</h4>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {state.businessData.insights.map((insight, index) => (
-              <div key={index} className="flex items-start space-x-3 p-3 bg-white rounded-lg border border-emerald-200">
-                <div className="flex-shrink-0 w-2 h-2 bg-emerald-500 rounded-full mt-2"></div>
-                <p className="text-sm text-gray-700">{insight}</p>
+              {/* Reviews Card */}
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200">
+                <div className="flex items-center mb-3">
+                  <Users className="h-6 w-6 text-green-500 mr-2" />
+                  <h4 className="font-semibold text-gray-900">Reviews</h4>
+                </div>
+                <div className="flex items-baseline">
+                  <span className="text-3xl font-bold text-gray-900">{state.businessData.reviews}</span>
+                  <span className="text-lg text-gray-600 ml-1">total</span>
+                </div>
+                <p className="text-sm text-gray-600 mt-2">
+                  {state.businessData.reviews > 200 ? 'Excellent engagement!' : 
+                   state.businessData.reviews > 100 ? 'Great engagement!' : 'Growing audience'}
+                </p>
               </div>
-            ))}
+
+              {/* Search Ranking Card */}
+              <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-200">
+                <div className="flex items-center mb-3">
+                  <Search className="h-6 w-6 text-blue-500 mr-2" />
+                  <h4 className="font-semibold text-gray-900">Local Ranking</h4>
+                </div>
+                <div className="flex items-baseline">
+                  <span className="text-3xl font-bold text-gray-900">#{state.businessData.seoMetrics.localSearchRanking}</span>
+                  <span className="text-lg text-gray-600 ml-1">position</span>
+                </div>
+                <p className="text-sm text-gray-600 mt-2">
+                  {state.businessData.seoMetrics.localSearchRanking <= 3 ? 'Top performer!' : 'Room for growth'}
+                </p>
+              </div>
+
+              {/* Market Share Card */}
+              <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-200">
+                <div className="flex items-center mb-3">
+                  <Target className="h-6 w-6 text-purple-500 mr-2" />
+                  <h4 className="font-semibold text-gray-900">Market Share</h4>
+                </div>
+                <div className="flex items-baseline">
+                  <span className="text-3xl font-bold text-gray-900">{state.businessData.competitorAnalysis.estimatedMarketShare}</span>
+                </div>
+                <p className="text-sm text-gray-600 mt-2">
+                  vs {state.businessData.competitorAnalysis.localCompetitors} competitors
+                </p>
+              </div>
+            </div>
+
+            {/* Charts Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <RatingChart 
+                rating={state.businessData.rating} 
+                reviews={state.businessData.reviews} 
+              />
+              <div className="grid grid-cols-2 gap-4">
+                <MetricsGauge
+                  value={state.businessData.seoMetrics.monthlySearchVolume}
+                  max={2500}
+                  label="Monthly Searches"
+                  color="#3B82F6"
+                />
+                <MetricsGauge
+                  value={parseInt(state.businessData.seoMetrics.onlineVisibility)}
+                  max={100}
+                  label="Online Visibility"
+                  color="#10B981"
+                  unit="%"
+                />
+              </div>
+            </div>
+
+            {/* SEO Headline Section */}
+            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center">
+                  <Sparkles className="h-6 w-6 text-indigo-500 mr-2" />
+                  <h4 className="font-semibold text-gray-900">AI-Generated SEO Headline</h4>
+                </div>
+                <button
+                  onClick={handleRegenerateHeadline}
+                  disabled={state.isRegenerating}
+                  className="flex items-center space-x-2 bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <RefreshCw className={`h-4 w-4 ${state.isRegenerating ? 'animate-spin' : ''}`} />
+                  <span>{state.isRegenerating ? 'Generating...' : 'Regenerate'}</span>
+                </button>
+              </div>
+              
+              <div className="relative">
+                <p className="text-lg font-medium text-gray-900 leading-relaxed mb-4">
+                  {state.businessData.headline}
+                </p>
+                {state.isRegenerating && (
+                  <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center rounded-lg">
+                    <div className="flex items-center space-x-2 text-indigo-600">
+                      <RefreshCw className="h-5 w-5 animate-spin" />
+                      <span className="font-medium">Generating new headline...</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-3 bg-white rounded-lg border border-indigo-200">
+                  <p className="text-sm text-gray-600">
+                    <strong>SEO Score:</strong> Optimized for local search with business name and location targeting.
+                  </p>
+                </div>
+                <div className="p-3 bg-white rounded-lg border border-indigo-200">
+                  <p className="text-sm text-gray-600">
+                    <strong>Visibility:</strong> {state.businessData.seoMetrics.onlineVisibility} online presence detected.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Business Insights */}
+            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-6 border border-emerald-200">
+              <div className="flex items-center mb-4">
+                <TrendingUp className="h-6 w-6 text-emerald-500 mr-2" />
+                <h4 className="font-semibold text-gray-900">Business Insights</h4>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {state.businessData.insights.map((insight, index) => (
+                  <div key={index} className="flex items-start space-x-3 p-3 bg-white rounded-lg border border-emerald-200">
+                    <div className="flex-shrink-0 w-2 h-2 bg-emerald-500 rounded-full mt-2"></div>
+                    <p className="text-sm text-gray-700">{insight}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Advanced Metrics Toggle */}
-        <div className="mb-6">
-          <button
-            onClick={() => setShowAdvancedMetrics(!showAdvancedMetrics)}
-            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors duration-200"
-          >
-            {showAdvancedMetrics ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-            <span className="font-medium">
-              {showAdvancedMetrics ? 'Hide' : 'Show'} Advanced Analytics
-            </span>
-          </button>
-        </div>
-
-        {/* Advanced Metrics */}
-        {showAdvancedMetrics && (
+        {activeTab === 'analytics' && (
           <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <TrendChart 
+                businessType={state.businessData.businessType}
+                rating={state.businessData.rating}
+              />
+              <SEOChart 
+                seoMetrics={state.businessData.seoMetrics}
+                rating={state.businessData.rating}
+              />
+            </div>
+            
             {/* SEO Metrics */}
             <div className="bg-gradient-to-br from-cyan-50 to-blue-50 rounded-xl p-6 border border-cyan-200">
               <div className="flex items-center mb-4">
@@ -280,7 +341,18 @@ const BusinessCard: React.FC = () => {
                 </div>
               </div>
             </div>
+          </div>
+        )}
 
+        {activeTab === 'competition' && (
+          <div className="space-y-6">
+            <CompetitorChart
+              businessName="Your Business"
+              rating={state.businessData.rating}
+              marketShare={state.businessData.competitorAnalysis.estimatedMarketShare}
+              businessType={state.businessData.businessType}
+            />
+            
             {/* Competitive Analysis */}
             <div className="bg-gradient-to-br from-rose-50 to-pink-50 rounded-xl p-6 border border-rose-200">
               <div className="flex items-center mb-4">
@@ -308,6 +380,34 @@ const BusinessCard: React.FC = () => {
                   <div className="text-sm text-gray-600">Key Advantage</div>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'activity' && (
+          <div className="space-y-6">
+            <HeatmapChart businessType={state.businessData.businessType} />
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <MetricsGauge
+                value={state.businessData.rating * 20}
+                max={100}
+                label="Customer Satisfaction"
+                color="#F59E0B"
+                unit="%"
+              />
+              <MetricsGauge
+                value={state.businessData.reviews}
+                max={500}
+                label="Review Count"
+                color="#8B5CF6"
+              />
+              <MetricsGauge
+                value={state.businessData.seoMetrics.keywordOpportunities}
+                max={20}
+                label="SEO Opportunities"
+                color="#06B6D4"
+              />
             </div>
           </div>
         )}
