@@ -5,7 +5,7 @@ import { useBusinessContext } from '../context/BusinessContext';
 const BusinessCard: React.FC = () => {
   const { state, dispatch } = useBusinessContext();
   const [showAdvancedMetrics, setShowAdvancedMetrics] = useState(false);
-  const [originalFormData, setOriginalFormData] = useState({ name: '', location: '' });
+  const [formData, setFormData] = useState({ name: '', location: '' });
 
   if (!state.businessData) return null;
 
@@ -14,20 +14,31 @@ const BusinessCard: React.FC = () => {
 
     try {
       const urlParams = new URLSearchParams({
-        name: originalFormData.name || 'Sample Business',
-        location: originalFormData.location || 'Sample Location',
+        name: formData.name || 'Sample Business',
+        location: formData.location || 'Sample Location',
       });
 
-      const response = await fetch(`https://growth-ai-1.onrender.com/regenerate-headline?${urlParams}`);
+      const response = await fetch(`https://growth-ai-1.onrender.com/regenerate-headline?${urlParams}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      });
       
       if (!response.ok) {
-        throw new Error('Failed to regenerate headline');
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText || 'Failed to regenerate headline'}`);
       }
 
       const data = await response.json();
       dispatch({ type: 'UPDATE_HEADLINE', payload: data.headline });
     } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: 'Failed to regenerate headline. Please try again.' });
+      console.error('Regenerate headline error:', error);
+      dispatch({ 
+        type: 'SET_ERROR', 
+        payload: error instanceof Error ? error.message : 'Failed to regenerate headline. Please try again.' 
+      });
     }
   };
 

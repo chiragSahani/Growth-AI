@@ -50,18 +50,24 @@ const BusinessForm: React.FC = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         body: JSON.stringify(formData),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch business data');
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText || 'Failed to fetch business data'}`);
       }
 
       const data = await response.json();
       dispatch({ type: 'SET_BUSINESS_DATA', payload: data });
     } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: 'Failed to fetch business data. Please try again.' });
+      console.error('API Error:', error);
+      dispatch({ 
+        type: 'SET_ERROR', 
+        payload: error instanceof Error ? error.message : 'Failed to fetch business data. Please try again.' 
+      });
     }
   };
 
