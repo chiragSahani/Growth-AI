@@ -286,7 +286,7 @@ server/
 
 <div align="center">
 
-### **Built with ❤️ by [Your Name]**
+### **Built with ❤️ by Chirag Sahani**
 
 *Passionate Full-Stack Developer specializing in React, TypeScript, and Modern Web Technologies*
 
